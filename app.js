@@ -14,12 +14,13 @@
     return '페이스 괜찮아요. 주 1회 리뷰 알림만 지키세요.';
   }
   function render(){
+    var cst=0;try{var st=JSON.parse(localStorage.getItem('coach_streak')||'{}');cst=st.count||0;}catch(e){}
     var a=avg();
     var g=s.goal||50000; var gPct=g?Math.min(100,Math.round(a/g*100)):0;
-    root.innerHTML='<div class="card"><span class="chip">일평균 <b>'+a.toLocaleString()+'</b></span> <span class="chip">기록일 <b>'+s.days.length+'</b></span> <span class="chip">최대일 <b>'+maxDay().toLocaleString()+'</b></span> <span class="chip">목표 <b>'+gPct+'%</b></span><p style="margin-top:10px">'+tip(a)+'</p></div>'
+    root.innerHTML='<div class="card"><span class="chip">일평균 <b>'+a.toLocaleString()+'</b></span> <span class="chip">기록일 <b>'+s.days.length+'</b></span> <span class="chip">최대일 <b>'+maxDay().toLocaleString()+'</b></span> <span class="chip">목표 <b>'+gPct+'%</b></span> <span class="chip">🔥 <b>'+cst+'</b>일</span><p style="margin-top:10px">'+tip(a)+'</p></div>'
       +'<div class="card"><div class="sub">최근: '+(s.days.slice(-5).join(', ')||'-')+'</div><input id="x" type="number" placeholder="오늘 쓴 돈"/><button id="add">오늘 기록</button><input id="goal" type="number" placeholder="일 목표" value="'+(s.goal||50000)+'" style="margin-top:8px"/><button class="sec" id="setG">목표 저장</button></div>'
       +'<div class="card"><button class="sec" id="reset">기록 초기화</button></div>';
-    document.getElementById('add').onclick=function(){var v=+document.getElementById('x').value||0;if(!v)return;s.days.push(v);if(s.days.length>14)s.days.shift();save(s);render();try{legionTrack('activate',{v:v})}catch(e){}};
+    document.getElementById('add').onclick=function(){var v=+document.getElementById('x').value||0;if(!v)return;s.days.push(v);if(s.days.length>14)s.days.shift();save(s);try{var st=JSON.parse(localStorage.getItem('coach_streak')||'{}');var t0=new Date().toDateString();if(st.last!==t0){st.count=(st.last===new Date(Date.now()-864e5).toDateString()?(st.count||0)+1:1);st.last=t0;localStorage.setItem('coach_streak',JSON.stringify(st));}}catch(e){}render();try{legionTrack('activate',{v:v})}catch(e){}};
     var sg=document.getElementById('setG'); if(sg) sg.onclick=function(){s.goal=+document.getElementById('goal').value||50000;save(s);render();};
     document.getElementById('reset').onclick=function(){if(confirm('초기화?')){s={days:[]};save(s);render();}};
     if(!document.getElementById('shareWeek')){
