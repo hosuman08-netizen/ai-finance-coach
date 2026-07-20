@@ -43,6 +43,19 @@ try{var _dk=new Date().toDateString();var _o=JSON.parse(localStorage.getItem('lw
     var keys={}; for(var i=0;i<7;i++) keys[dayKey(-i)]=1;
     return s.entries.reduce(function(a,e){return a+(keys[e.d]?(+e.v||0):0);},0);
   }
+  function monthSum(){
+    var now=new Date(); var y=now.getFullYear(), m=now.getMonth();
+    return s.entries.reduce(function(a,e){
+      if(!e.d||e.d.indexOf('mig')===0) return a;
+      var p=e.d.split('-'); if(p.length<2) return a;
+      if(+p[0]===y && (+p[1]-1)===m) return a+(+e.v||0);
+      return a;
+    },0);
+  }
+  function prevWeekSum(){
+    var keys={}; for(var i=7;i<14;i++) keys[dayKey(-i)]=1;
+    return s.entries.reduce(function(a,e){return a+(keys[e.d]?(+e.v||0):0);},0);
+  }
   // 5H: 7d spark bars (local, finance transparent)
   function weekSpark(){
     var map={};
@@ -87,11 +100,12 @@ try{var _dk=new Date().toDateString();var _o=JSON.parse(localStorage.getItem('lw
     var a=avg();
     var g=s.goal||50000;
     var gPct=g?Math.min(100,Math.round(a/g*100)):0;
-    var ws=weekSum(); var ug=underGoalRate(); var bars=weekBars(); var maxB=Math.max.apply(null,bars.map(function(b){return b.v;}).concat([1]));
+    var ws=weekSum(); var pws=prevWeekSum(); var ms=monthSum(); var ug=underGoalRate(); var bars=weekBars(); var maxB=Math.max.apply(null,bars.map(function(b){return b.v;}).concat([1]));
+    var wDelta=ws-pws;
     var recent=s.entries.slice(-5).map(function(e){return (e.d||'').slice(5)+':'+e.v;}).join(' · ')||'-';
     var todayLogged=s.entries.some(function(e){return e.d===dayKey(0);});
     root.innerHTML='<div class="card field1Finance" style="font-size:11px;color:#67e8f9">투명 금융 · 투자권유 아님 · 로컬만</div>'
-      +'<div class="card"><span class="chip">일평균 <b>'+a.toLocaleString()+'</b></span> <span class="chip">기록일 <b>'+s.entries.length+'</b></span> <span class="chip">최대일 <b>'+maxDay().toLocaleString()+'</b></span> <span class="chip">목표비 <b>'+gPct+'%</b></span> <span class="chip">🔥 <b>'+cst+'</b>일</span> <span class="chip">7일합 <b>'+ws.toLocaleString()+'</b></span> <span class="chip">목표내 <b>'+ug+'%</b></span>'
+      +'<div class="card"><span class="chip">일평균 <b>'+a.toLocaleString()+'</b></span> <span class="chip">기록일 <b>'+s.entries.length+'</b></span> <span class="chip">최대일 <b>'+maxDay().toLocaleString()+'</b></span> <span class="chip">목표비 <b>'+gPct+'%</b></span> <span class="chip">🔥 <b>'+cst+'</b>일</span> <span class="chip">7일합 <b>'+ws.toLocaleString()+'</b></span> <span class="chip">전주대비 <b style="color:'+(wDelta>0?'#f87171':'#67e8f9')+'">'+(wDelta>0?'+':'')+wDelta.toLocaleString()+'</b></span> <span class="chip">월누적 <b>'+ms.toLocaleString()+'</b></span> <span class="chip">목표내 <b>'+ug+'%</b></span>'
       +'<div class="row" style="gap:4px;margin-top:10px;align-items:flex-end;height:44px">'+weekSpark()+'</div>'
       +'<p class="sub" style="margin:4px 0 0">7일 스파크 · 목표초과=빨강</p>'
       +'<div style="margin-top:10px;display:flex;align-items:flex-end;gap:3px;height:40px">'+bars.map(function(b){var h=Math.max(4,Math.round(b.v/maxB*36));return '<div title="'+b.k+' '+b.v+'" style="flex:1;height:'+h+'px;background:'+(b.v<=(s.goal||50000)?'#67e8f9':'#fbbf24')+';border-radius:3px 3px 0 0"></div>';}).join('')+'</div>'+'<p style="margin-top:10px">'+tip(a)+'</p></div>'
@@ -121,7 +135,7 @@ try{var _dk=new Date().toDateString();var _o=JSON.parse(localStorage.getItem('lw
     document.getElementById('setG').onclick=function(){s.goal=+document.getElementById('goal').value||50000;save(s);render();};
     document.getElementById('reset').onclick=function(){if(confirm('초기화?')){s={entries:[],goal:s.goal||50000};save(s);render();}};
     document.getElementById('shareWeek').onclick=function(){
-      var text='일평균 '+avg().toLocaleString()+'원 · 7일합 '+weekSum().toLocaleString()+' · '+s.entries.length+'일 기록 · https://hosuman08-netizen.github.io/ai-finance-coach/';
+      var text='일평균 '+avg().toLocaleString()+'원 · 7일합 '+weekSum().toLocaleString()+' · 월 '+monthSum().toLocaleString()+' · '+s.entries.length+'일 기록 · https://hosuman08-netizen.github.io/ai-finance-coach/\n투명 금융 · 투자권유 아님';
       if(navigator.clipboard)navigator.clipboard.writeText(text);
       else if(navigator.share) navigator.share({text:text}).catch(function(){});
       try{legionTrack('share_peak',{})}catch(e){}
