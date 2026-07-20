@@ -26,6 +26,22 @@
     var keys={}; for(var i=0;i<7;i++) keys[dayKey(-i)]=1;
     return s.entries.reduce(function(a,e){return a+(keys[e.d]?(+e.v||0):0);},0);
   }
+  // 5H: 7d spark bars (local, finance transparent)
+  function weekSpark(){
+    var map={};
+    s.entries.forEach(function(e){map[e.d]=+e.v||0;});
+    var days=[], max=1;
+    for(var i=6;i>=0;i--){
+      var k=dayKey(-i); var v=map[k]||0;
+      days.push({k:k.slice(5),v:v}); if(v>max) max=v;
+    }
+    return days.map(function(d){
+      var h=Math.max(4, Math.round((d.v/max)*36));
+      var col=d.v?(d.v>(s.goal||50000)?'#f87171':'#67e8f9'):'#2a2438';
+      return '<div title="'+d.k+': '+d.v.toLocaleString()+'" style="flex:1;height:40px;display:flex;align-items:flex-end">'
+        +'<div style="width:100%;height:'+h+'px;background:'+col+';border-radius:3px 3px 0 0"></div></div>';
+    }).join('');
+  }
   function tip(a){
     if(a===0)return '오늘 지출을 한 줄만 적어보세요. 기록이 습관의 시작.';
     if(a>100000)return '일평균이 높아요. 고정비/변동비 분리부터.';
@@ -59,6 +75,8 @@
     var todayLogged=s.entries.some(function(e){return e.d===dayKey(0);});
     root.innerHTML='<div class="card field1Finance" style="font-size:11px;color:#67e8f9">투명 금융 · 투자권유 아님 · 로컬만</div>'
       +'<div class="card"><span class="chip">일평균 <b>'+a.toLocaleString()+'</b></span> <span class="chip">기록일 <b>'+s.entries.length+'</b></span> <span class="chip">최대일 <b>'+maxDay().toLocaleString()+'</b></span> <span class="chip">목표비 <b>'+gPct+'%</b></span> <span class="chip">🔥 <b>'+cst+'</b>일</span> <span class="chip">7일합 <b>'+ws.toLocaleString()+'</b></span>'
+      +'<div class="row" style="gap:4px;margin-top:10px;align-items:flex-end;height:44px">'+weekSpark()+'</div>'
+      +'<p class="sub" style="margin:4px 0 0">7일 스파크 · 목표초과=빨강</p>'
       +'<p style="margin-top:10px">'+tip(a)+'</p></div>'
       +'<div class="card"><div class="sub">최근: '+recent+'</div>'
       +'<input id="x" type="number" placeholder="'+(todayLogged?'오늘 금액 수정':'오늘 쓴 돈')+'"/>'
