@@ -9,6 +9,7 @@
     if(a===0)return '오늘 지출을 한 줄만 적어보세요. 기록이 습관의 시작.';
     if(a>100000)return '일평균이 높아요. 고정비/변동비 분리부터.';
     if(a>50000)return '카페·배달 3건만 줄여도 주 변화가 큽니다.';
+    if(s.days.length>=3){var prev=(s.days[s.days.length-2]||0); if(a<prev*0.85)return '평균이 내려가는 중 · 정진 중.';}
     return '페이스 괜찮아요. 주 1회 리뷰 알림만 지키세요.';
   }
   function render(){
