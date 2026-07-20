@@ -14,7 +14,7 @@
   function render(){
     var a=avg();
     root.innerHTML='<div class="card"><span class="chip">일평균 <b>'+a.toLocaleString()+'</b></span> <span class="chip">기록일 <b>'+s.days.length+'</b></span><p style="margin-top:10px">'+tip(a)+'</p></div>'
-      +'<div class="card"><input id="x" type="number" placeholder="오늘 쓴 돈"/><button id="add">오늘 기록</button></div>'
+      +'<div class="card"><div class="sub">최근: '+(s.days.slice(-5).join(', ')||'-')+'</div><input id="x" type="number" placeholder="오늘 쓴 돈"/><button id="add">오늘 기록</button></div>'
       +'<div class="card"><button class="sec" id="reset">기록 초기화</button></div>';
     document.getElementById('add').onclick=function(){var v=+document.getElementById('x').value||0;if(!v)return;s.days.push(v);if(s.days.length>14)s.days.shift();save(s);render();try{legionTrack('activate',{v:v})}catch(e){}};
     document.getElementById('reset').onclick=function(){if(confirm('초기화?')){s={days:[]};save(s);render();}};
