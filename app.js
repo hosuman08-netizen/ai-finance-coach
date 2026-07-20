@@ -97,11 +97,17 @@ try{var _dk=new Date().toDateString();var _o=JSON.parse(localStorage.getItem('lw
       +'<div style="margin-top:10px;display:flex;align-items:flex-end;gap:3px;height:40px">'+bars.map(function(b){var h=Math.max(4,Math.round(b.v/maxB*36));return '<div title="'+b.k+' '+b.v+'" style="flex:1;height:'+h+'px;background:'+(b.v<=(s.goal||50000)?'#67e8f9':'#fbbf24')+';border-radius:3px 3px 0 0"></div>';}).join('')+'</div>'+'<p style="margin-top:10px">'+tip(a)+'</p></div>'
       +'<div class="card"><div class="sub">최근: '+recent+'</div>'
       +'<input id="x" type="number" placeholder="'+(todayLogged?'오늘 금액 수정':'오늘 쓴 돈')+'"/>'
-      +'<button id="add">'+(todayLogged?'오늘 덮어쓰기':'오늘 기록')+'</button>'
+      +'<button id="add">'+(todayLogged?'오늘 덮어쓰기':'오늘 기록')+'</button> <button class="sec" id="undoDay">↩ 직전일 삭제</button>'
       +'<input id="goal" type="number" placeholder="일 목표" value="'+g+'" style="margin-top:8px"/>'
       +'<button class="sec" id="setG">목표 저장</button></div>'
       +'<div class="card"><button class="sec" id="reset">기록 초기화</button>'
       +'<button id="shareWeek" style="width:100%;margin-top:8px;padding:11px;border:0;border-radius:10px;background:#1c1826;color:#ece8f1">주간 요약 공유</button></div>';
+    var ud=document.getElementById('undoDay');
+    if(ud) ud.onclick=function(){
+      if(!s.entries.length)return;
+      s.entries.pop(); save(s); render();
+      try{legionTrack('undo',{})}catch(e){}
+    };
     document.getElementById('add').onclick=function(){
       var v=+document.getElementById('x').value||0; if(!v)return;
       var t=dayKey(0);
