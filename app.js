@@ -18,6 +18,12 @@
       +'<div class="card"><button class="sec" id="reset">기록 초기화</button></div>';
     document.getElementById('add').onclick=function(){var v=+document.getElementById('x').value||0;if(!v)return;s.days.push(v);if(s.days.length>14)s.days.shift();save(s);render();try{legionTrack('activate',{v:v})}catch(e){}};
     document.getElementById('reset').onclick=function(){if(confirm('초기화?')){s={days:[]};save(s);render();}};
+    if(!document.getElementById('shareWeek')){
+      var b=document.createElement('button');b.id='shareWeek';b.style.cssText='width:100%;margin-top:8px;padding:11px;border:0;border-radius:10px;background:#1c1826;color:#ece8f1';
+      b.textContent='주간 요약 공유';b.onclick=function(){var text='일평균 '+avg().toLocaleString()+'원 · '+s.days.length+'일 기록 · https://hosuman08-netizen.github.io/ai-finance-coach/';
+        if(navigator.clipboard)navigator.clipboard.writeText(text);try{legionTrack('share_peak',{})}catch(e){}};
+      root.appendChild(b);
+    }
   }
   try{legionTrack('session_start',{})}catch(e){}
   render();
