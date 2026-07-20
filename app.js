@@ -32,4 +32,14 @@
   }
   try{legionTrack('session_start',{})}catch(e){}
   render();
+
+  (function(){try{
+    if(document.getElementById('moneyPipe'))return;
+    var d=document.createElement('div');
+    d.innerHTML='\n<div id="moneyPipe" style="margin-top:12px;padding:10px;border:1px solid #67e8f944;border-radius:12px;background:#121820;text-align:center;font-size:12px">\n  <div style="color:#67e8f9;font-weight:700;margin-bottom:4px">💎 투명 금융 크로스</div>\n  <p style="opacity:.75;margin:0 0 6px">투자권유 아님 · 로컬 도구 · 후원 선택</p>\n  <a style="color:#ece8f1;margin:0 6px" href="https://hosuman08-netizen.github.io/budget-pulse/?utm_source=pipe">💓 Budget</a>\n  <a style="color:#ece8f1;margin:0 6px" href="mailto:hoyashi95@gmail.com?subject=%5BFinance%5D%20feedback">✉ 피드백</a>\n  <a style="color:#e0b552;margin:0 6px" href="https://hosuman08-netizen.github.io/legion-hub/?utm_source=pipe">🎮 Arcade</a>\n</div>\n';
+    var app=document.getElementById('app')||document.body;
+    app.appendChild(d.firstElementChild||d);
+    try{legionTrack('money_pipe_shown',{app:'auto'})}catch(e){}
+  }catch(e){}})();
+
 })();
