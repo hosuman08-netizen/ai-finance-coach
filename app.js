@@ -22,6 +22,20 @@
   function vals(){return s.entries.map(function(e){return +e.v||0;});}
   function avg(){var v=vals(); if(!v.length)return 0;return Math.round(v.reduce(function(a,b){return a+b;},0)/v.length);}
   function maxDay(){var v=vals(); if(!v.length)return 0;return Math.max.apply(null,v);}
+  function weekBars(){
+    var out=[];
+    for(var i=6;i>=0;i--){
+      var k=dayKey(-i);
+      var hit=s.entries.filter(function(e){return e.d===k;})[0];
+      out.push({k:k.slice(5),v:hit?(+hit.v||0):0});
+    }
+    return out;
+  }
+  function underGoalRate(){
+    var g=s.goal||50000; var n=0,m=0;
+    s.entries.forEach(function(e){m++; if((+e.v||0)<=g)n++;});
+    return m?Math.round(n/m*100):0;
+  }
   function weekSum(){
     var keys={}; for(var i=0;i<7;i++) keys[dayKey(-i)]=1;
     return s.entries.reduce(function(a,e){return a+(keys[e.d]?(+e.v||0):0);},0);
@@ -70,14 +84,14 @@
     var a=avg();
     var g=s.goal||50000;
     var gPct=g?Math.min(100,Math.round(a/g*100)):0;
-    var ws=weekSum();
+    var ws=weekSum(); var ug=underGoalRate(); var bars=weekBars(); var maxB=Math.max.apply(null,bars.map(function(b){return b.v;}).concat([1]));
     var recent=s.entries.slice(-5).map(function(e){return (e.d||'').slice(5)+':'+e.v;}).join(' · ')||'-';
     var todayLogged=s.entries.some(function(e){return e.d===dayKey(0);});
     root.innerHTML='<div class="card field1Finance" style="font-size:11px;color:#67e8f9">투명 금융 · 투자권유 아님 · 로컬만</div>'
-      +'<div class="card"><span class="chip">일평균 <b>'+a.toLocaleString()+'</b></span> <span class="chip">기록일 <b>'+s.entries.length+'</b></span> <span class="chip">최대일 <b>'+maxDay().toLocaleString()+'</b></span> <span class="chip">목표비 <b>'+gPct+'%</b></span> <span class="chip">🔥 <b>'+cst+'</b>일</span> <span class="chip">7일합 <b>'+ws.toLocaleString()+'</b></span>'
+      +'<div class="card"><span class="chip">일평균 <b>'+a.toLocaleString()+'</b></span> <span class="chip">기록일 <b>'+s.entries.length+'</b></span> <span class="chip">최대일 <b>'+maxDay().toLocaleString()+'</b></span> <span class="chip">목표비 <b>'+gPct+'%</b></span> <span class="chip">🔥 <b>'+cst+'</b>일</span> <span class="chip">7일합 <b>'+ws.toLocaleString()+'</b></span> <span class="chip">목표내 <b>'+ug+'%</b></span>'
       +'<div class="row" style="gap:4px;margin-top:10px;align-items:flex-end;height:44px">'+weekSpark()+'</div>'
       +'<p class="sub" style="margin:4px 0 0">7일 스파크 · 목표초과=빨강</p>'
-      +'<p style="margin-top:10px">'+tip(a)+'</p></div>'
+      +'<div style="margin-top:10px;display:flex;align-items:flex-end;gap:3px;height:40px">'+bars.map(function(b){var h=Math.max(4,Math.round(b.v/maxB*36));return '<div title="'+b.k+' '+b.v+'" style="flex:1;height:'+h+'px;background:'+(b.v<=(s.goal||50000)?'#67e8f9':'#fbbf24')+';border-radius:3px 3px 0 0"></div>';}).join('')+'</div>'+'<p style="margin-top:10px">'+tip(a)+'</p></div>'
       +'<div class="card"><div class="sub">최근: '+recent+'</div>'
       +'<input id="x" type="number" placeholder="'+(todayLogged?'오늘 금액 수정':'오늘 쓴 돈')+'"/>'
       +'<button id="add">'+(todayLogged?'오늘 덮어쓰기':'오늘 기록')+'</button>'
