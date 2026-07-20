@@ -1,7 +1,7 @@
 
 (function(){
   var K='afc_v1';
-  function load(){try{return JSON.parse(localStorage.getItem(K)||'{"days":[]}');}catch(e){return{days:[]};}}
+  function load(){try{return JSON.parse(localStorage.getItem(K)||'{"days":[],"goal":50000}');}catch(e){return{days:[],goal:50000};}}
   function save(s){localStorage.setItem(K,JSON.stringify(s));}
   var s=load(); var root=document.getElementById('app');
   function avg(){if(!s.days.length)return 0;return Math.round(s.days.reduce(function(a,b){return a+b;},0)/s.days.length);}
@@ -15,10 +15,12 @@
   }
   function render(){
     var a=avg();
-    root.innerHTML='<div class="card"><span class="chip">일평균 <b>'+a.toLocaleString()+'</b></span> <span class="chip">기록일 <b>'+s.days.length+'</b></span> <span class="chip">최대일 <b>'+maxDay().toLocaleString()+'</b></span><p style="margin-top:10px">'+tip(a)+'</p></div>'
-      +'<div class="card"><div class="sub">최근: '+(s.days.slice(-5).join(', ')||'-')+'</div><input id="x" type="number" placeholder="오늘 쓴 돈"/><button id="add">오늘 기록</button></div>'
+    var g=s.goal||50000; var gPct=g?Math.min(100,Math.round(a/g*100)):0;
+    root.innerHTML='<div class="card"><span class="chip">일평균 <b>'+a.toLocaleString()+'</b></span> <span class="chip">기록일 <b>'+s.days.length+'</b></span> <span class="chip">최대일 <b>'+maxDay().toLocaleString()+'</b></span> <span class="chip">목표 <b>'+gPct+'%</b></span><p style="margin-top:10px">'+tip(a)+'</p></div>'
+      +'<div class="card"><div class="sub">최근: '+(s.days.slice(-5).join(', ')||'-')+'</div><input id="x" type="number" placeholder="오늘 쓴 돈"/><button id="add">오늘 기록</button><input id="goal" type="number" placeholder="일 목표" value="'+(s.goal||50000)+'" style="margin-top:8px"/><button class="sec" id="setG">목표 저장</button></div>'
       +'<div class="card"><button class="sec" id="reset">기록 초기화</button></div>';
     document.getElementById('add').onclick=function(){var v=+document.getElementById('x').value||0;if(!v)return;s.days.push(v);if(s.days.length>14)s.days.shift();save(s);render();try{legionTrack('activate',{v:v})}catch(e){}};
+    var sg=document.getElementById('setG'); if(sg) sg.onclick=function(){s.goal=+document.getElementById('goal').value||50000;save(s);render();};
     document.getElementById('reset').onclick=function(){if(confirm('초기화?')){s={days:[]};save(s);render();}};
     if(!document.getElementById('shareWeek')){
       var b=document.createElement('button');b.id='shareWeek';b.style.cssText='width:100%;margin-top:8px;padding:11px;border:0;border-radius:10px;background:#1c1826;color:#ece8f1';
