@@ -115,7 +115,7 @@ try{var _dk=new Date().toDateString();var _o=JSON.parse(localStorage.getItem('lw
       +'<input id="goal" type="number" placeholder="일 목표" value="'+g+'" style="margin-top:8px"/>'
       +'<button class="sec" id="setG">목표 저장</button></div>'
       +'<div class="card"><button class="sec" id="reset">기록 초기화</button>'
-      +'<button id="shareWeek" style="width:100%;margin-top:8px;padding:11px;border:0;border-radius:10px;background:#1c1826;color:#ece8f1">주간 요약 공유</button></div>';
+      +'<button id="shareWeek" style="width:100%;margin-top:8px;padding:11px;border:0;border-radius:10px;background:#1c1826;color:#ece8f1">주간 요약 공유</button>'+'<button id="exportCoach" class="sec" style="width:100%;margin-top:8px;padding:11px;border:0;border-radius:10px;background:#1c1826;color:#ece8f1">⬇ JSON 백업</button></div>';
     var ud=document.getElementById('undoDay');
     if(ud) ud.onclick=function(){
       if(!s.entries.length)return;
@@ -140,6 +140,15 @@ try{var _dk=new Date().toDateString();var _o=JSON.parse(localStorage.getItem('lw
       else if(navigator.share) navigator.share({text:text}).catch(function(){});
       try{legionTrack('share_peak',{})}catch(e){}
     };
+    var ex=document.getElementById('exportCoach');
+    if(ex) ex.onclick=function(){
+      try{
+        var blob=new Blob([JSON.stringify({app:'ai-finance-coach',entries:s.entries,goal:s.goal,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});
+        var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='coach-'+dayKey(0)+'.json'; a.click();
+        try{legionTrack('export',{})}catch(e){}
+      }catch(e){}
+    };
+
   }
   try{legionTrack('session_start',{})}catch(e){}
   render();
